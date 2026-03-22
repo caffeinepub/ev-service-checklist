@@ -1,6 +1,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { useState } from "react";
 import { Sidebar } from "./components/Sidebar";
+import { HelpPage } from "./pages/HelpPage";
 import { HistoryPage } from "./pages/HistoryPage";
 import { NewDiagnosis } from "./pages/NewDiagnosis";
 import { ReportPage } from "./pages/ReportPage";
@@ -42,6 +43,7 @@ export default function App() {
               onViewRecord={handleViewRecord}
             />
           )}
+          {currentPage === "help" && <HelpPage />}
         </div>
       </main>
 

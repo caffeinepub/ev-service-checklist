@@ -6,6 +6,22 @@ export type FaultCategoryName =
   | "Mechanical Noise"
   | "Brake Issue"
   | "Display Issue"
+  | "ECU / Controller Fault"
+  | "Overheat"
+  | "Throttle Fault"
+  | "Motor Fault"
+  | "BMS Fault"
+  | "Communication Fault"
+  | "Error Code"
+  | "Cell Imbalance"
+  | "Pre-Charge Fault"
+  | "Water Damage"
+  | "Wiring / Connector Fault"
+  | "Regen Braking Fault"
+  | "Hall Sensor Fault"
+  | "Charging Port Fault"
+  | "Horn / Accessories Fault"
+  | "Lights / Indicator Fault"
   | "General Fault";
 
 export interface TestParam {
@@ -40,4 +56,4 @@ export interface ServiceRecord {
   overallStatus: "ok" | "fault";
 }
 
-export type Page = "diagnosis" | "reports" | "history";
+export type Page = "diagnosis" | "reports" | "history" | "help";

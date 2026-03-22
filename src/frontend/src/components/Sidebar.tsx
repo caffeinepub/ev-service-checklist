@@ -1,4 +1,12 @@
-import { ClipboardList, History, Menu, PlusCircle, X, Zap } from "lucide-react";
+import {
+  ClipboardList,
+  HelpCircle,
+  History,
+  Menu,
+  PlusCircle,
+  X,
+  Zap,
+} from "lucide-react";
 import { useState } from "react";
 import type { Page } from "../types";
 
@@ -11,6 +19,7 @@ const NAV_ITEMS: { page: Page; label: string; icon: React.ElementType }[] = [
   { page: "diagnosis", label: "New Diagnosis", icon: PlusCircle },
   { page: "reports", label: "Reports", icon: ClipboardList },
   { page: "history", label: "History", icon: History },
+  { page: "help", label: "Help", icon: HelpCircle },
 ];
 
 export function Sidebar({ currentPage, onNavigate }: SidebarProps) {

@@ -24,7 +24,13 @@ import {
 } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { calcStatus, detectFault, saveRecord } from "../lib/faultLogic";
+import {
+  calcStatus,
+  detectFault,
+  detectSubFaultGroup,
+  saveRecord,
+} from "../lib/faultLogic";
+import type { SubFaultDef, SubFaultGroup } from "../lib/faultLogic";
 import type { FaultCategoryName, ServiceRecord, TestResult } from "../types";
 
 const VEHICLE_MODELS = [
@@ -47,6 +53,8 @@ const CATEGORY_COLORS: Record<string, string> = {
   "Brake Issue": "bg-red-100 text-red-700 border-red-200",
   "Display Issue": "bg-purple-100 text-purple-700 border-purple-200",
   "General Fault": "bg-gray-100 text-gray-700 border-gray-200",
+  "Horn / Accessories Fault": "bg-yellow-100 text-yellow-700 border-yellow-200",
+  "Lights / Indicator Fault": "bg-yellow-100 text-yellow-700 border-yellow-200",
 };
 
 function StatusBadge({ status }: { status: "ok" | "fault" | "pending" }) {
@@ -79,21 +87,62 @@ export function NewDiagnosis({
   const [problemDescription, setProblemDescription] = useState("");
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [saved, setSaved] = useState(false);
+  const [selectedSubFault, setSelectedSubFault] = useState<SubFaultDef | null>(
+    null,
+  );
 
+  const subFaultGroup: SubFaultGroup | null =
+    problemDescription.trim().length > 2
+      ? detectSubFaultGroup(problemDescription)
+      : null;
+
+  // If no sub-fault group, fall back to standard fault detection
   const fault =
-    problemDescription.trim().length > 3
+    !subFaultGroup && problemDescription.trim().length > 3
       ? detectFault(problemDescription)
       : null;
 
-  const prevCategoryRef = useRef<string | null>(null);
+  // Effective diagnosis source: sub-fault (if selected) or standard fault
+  const activeDiagnostic = selectedSubFault
+    ? {
+        category: subFaultGroup?.groupName ?? "Motor Fault",
+        checks: selectedSubFault.checks,
+        expectedValues: selectedSubFault.expectedValues,
+        testParams: selectedSubFault.testParams,
+        tools: selectedSubFault.tools,
+        rootCause: selectedSubFault.rootCause,
+        repairSteps: selectedSubFault.repairSteps,
+      }
+    : fault
+      ? {
+          category: fault.category,
+          checks: fault.checks,
+          expectedValues: fault.expectedValues,
+          testParams: fault.testParams,
+          tools: fault.tools,
+          rootCause: fault.rootCause,
+          repairSteps: fault.repairSteps ?? [],
+        }
+      : null;
 
+  // Reset selected sub-fault when problem description changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentional reset when description changes
   useEffect(() => {
-    const currentCategory = fault?.category ?? null;
-    if (currentCategory !== prevCategoryRef.current) {
-      prevCategoryRef.current = currentCategory;
-      if (fault) {
+    setSelectedSubFault(null);
+    setSaved(false);
+  }, [problemDescription]);
+
+  // Reset test results when active diagnostic changes
+  const prevDiagKeyRef = useRef<string | null>(null);
+  useEffect(() => {
+    const key = selectedSubFault
+      ? selectedSubFault.id
+      : (fault?.category ?? null);
+    if (key !== prevDiagKeyRef.current) {
+      prevDiagKeyRef.current = key;
+      if (activeDiagnostic) {
         setTestResults(
-          fault.testParams.map((p) => ({
+          activeDiagnostic.testParams.map((p) => ({
             parameter: p.parameter,
             expectedValue: p.expectedValue,
             actualValue: "",
@@ -109,7 +158,7 @@ export function NewDiagnosis({
   function updateActualValue(index: number, value: string) {
     setTestResults((prev) => {
       const next = [...prev];
-      const param = fault!.testParams[index];
+      const param = activeDiagnostic!.testParams[index];
       next[index] = {
         ...next[index],
         actualValue: value,
@@ -150,8 +199,9 @@ export function NewDiagnosis({
       phoneNumber,
       vehicleModel,
       problemDescription,
-      faultCategory: (fault?.category ?? "General Fault") as FaultCategoryName,
-      checkItems: fault?.checks ?? [],
+      faultCategory: (activeDiagnostic?.category ??
+        "General Fault") as FaultCategoryName,
+      checkItems: activeDiagnostic?.checks ?? [],
       testResults,
       rootCause,
       repairItems,
@@ -264,12 +314,12 @@ export function NewDiagnosis({
                 id="problem"
                 value={problemDescription}
                 onChange={(e) => setProblemDescription(e.target.value)}
-                placeholder="Describe the fault, e.g. not starting, low pickup, no power…"
+                placeholder="Describe the fault, e.g. motor, battery, not starting…"
                 className="mt-1 resize-none"
                 rows={3}
                 data-ocid="diagnosis.problem.textarea"
               />
-              {problemDescription.trim().length > 3 && (
+              {problemDescription.trim().length > 2 && (
                 <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                   <Activity size={11} /> Analysing fault…
                 </p>
@@ -279,49 +329,130 @@ export function NewDiagnosis({
         </CardContent>
       </Card>
 
-      {/* Steps 2–6 */}
+      {/* Step 2 — Sub-fault group picker */}
       <AnimatePresence>
-        {fault && (
+        {subFaultGroup && (
           <motion.div
-            key={fault.category}
+            key={subFaultGroup.groupName}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Card
+              className="border-2 border-primary/30"
+              data-ocid="diagnosis.subfault_picker.card"
+            >
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <span className="w-6 h-6 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">
+                    2
+                  </span>
+                  Select Specific Fault Type
+                  <span className="ml-auto text-xs font-normal text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                    {subFaultGroup.groupName}
+                  </span>
+                </CardTitle>
+                <p className="text-sm text-muted-foreground mt-1 ml-8">
+                  Choose the exact symptom you are seeing:
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {subFaultGroup.subFaults.map((sf, idx) => {
+                    const isSelected = selectedSubFault?.id === sf.id;
+                    return (
+                      <button
+                        key={sf.id}
+                        type="button"
+                        onClick={() => setSelectedSubFault(sf)}
+                        className={`text-left rounded-xl border-2 px-4 py-3 transition-all cursor-pointer hover:bg-primary/5 ${
+                          isSelected
+                            ? "border-primary bg-primary/5 shadow-sm"
+                            : "border-border bg-card hover:border-primary/40"
+                        }`}
+                        data-ocid={`diagnosis.subfault.item.${idx + 1}`}
+                      >
+                        <div className="flex items-start gap-2">
+                          <div
+                            className={`mt-0.5 w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center transition-colors ${
+                              isSelected
+                                ? "border-primary bg-primary"
+                                : "border-muted-foreground/40"
+                            }`}
+                          >
+                            {isSelected && (
+                              <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-sm text-foreground leading-tight">
+                              {sf.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-0.5 leading-snug">
+                              {sf.symptom}
+                            </p>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Steps 3–6 — show when sub-fault selected OR standard fault detected */}
+      <AnimatePresence>
+        {activeDiagnostic && (
+          <motion.div
+            key={selectedSubFault?.id ?? activeDiagnostic.category}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.3 }}
             className="space-y-6"
           >
-            {/* Step 2 */}
+            {/* Step 2 (no sub-group) / Step 3 (sub-group) — Fault Detection */}
             <Card data-ocid="diagnosis.fault_detection.card">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <span className="w-6 h-6 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">
-                    2
+                    {subFaultGroup ? "3" : "2"}
                   </span>
                   Fault Detection
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <span className="text-sm text-muted-foreground">
                     Detected Category:
                   </span>
                   <span
                     className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold border ${
-                      CATEGORY_COLORS[fault.category]
+                      CATEGORY_COLORS[activeDiagnostic.category] ??
+                      "bg-gray-100 text-gray-700 border-gray-200"
                     }`}
                     data-ocid="diagnosis.fault_category.badge"
                   >
-                    {fault.category}
+                    {activeDiagnostic.category}
                   </span>
+                  {selectedSubFault && (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold border bg-primary/10 text-primary border-primary/30">
+                      {selectedSubFault.name}
+                    </span>
+                  )}
                 </div>
               </CardContent>
             </Card>
 
-            {/* Step 3 */}
+            {/* Step 3/4 — Diagnosis Guide */}
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <span className="w-6 h-6 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">
-                  3
+                  {subFaultGroup ? "4" : "3"}
                 </span>
                 <h2 className="text-base font-bold">Diagnosis Guide</h2>
               </div>
@@ -334,7 +465,7 @@ export function NewDiagnosis({
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-1.5">
-                      {fault.checks.map((c) => (
+                      {activeDiagnostic.checks.map((c) => (
                         <li key={c} className="flex items-center gap-2 text-sm">
                           <ChevronRight
                             size={12}
@@ -354,7 +485,7 @@ export function NewDiagnosis({
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
-                      {fault.expectedValues.map((ev) => (
+                      {activeDiagnostic.expectedValues.map((ev) => (
                         <li key={ev.label} className="text-xs">
                           <span className="text-muted-foreground">
                             {ev.label}:
@@ -375,7 +506,7 @@ export function NewDiagnosis({
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-1.5">
-                      {fault.tools.map((t) => (
+                      {activeDiagnostic.tools.map((t) => (
                         <li key={t} className="flex items-center gap-2 text-sm">
                           <ChevronRight
                             size={12}
@@ -390,12 +521,12 @@ export function NewDiagnosis({
               </div>
             </div>
 
-            {/* Step 4 */}
+            {/* Step 4/5 — Live Test Readings */}
             <Card data-ocid="diagnosis.test_table.card">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <span className="w-6 h-6 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">
-                    4
+                    {subFaultGroup ? "5" : "4"}
                   </span>
                   Live Test Readings
                 </CardTitle>
@@ -457,7 +588,7 @@ export function NewDiagnosis({
               </CardContent>
             </Card>
 
-            {/* Step 5 */}
+            {/* Step 5/6 — Result */}
             {allFilled && (
               <motion.div
                 initial={{ opacity: 0, y: 12 }}
@@ -475,7 +606,7 @@ export function NewDiagnosis({
                   <CardHeader className="pb-2">
                     <CardTitle className="text-base flex items-center gap-3">
                       <span className="w-6 h-6 rounded-full bg-primary text-white text-xs flex items-center justify-center font-bold">
-                        5
+                        {subFaultGroup ? "6" : "5"}
                       </span>
                       Diagnosis Result
                       {overallStatus === "ok" ? (
@@ -501,13 +632,34 @@ export function NewDiagnosis({
                         Root Cause
                       </span>
                       <p className="text-sm mt-0.5 font-medium">
-                        {rootCause || "—"}
+                        {activeDiagnostic.rootCause || rootCause || "—"}
                       </p>
                     </div>
+                    {activeDiagnostic.repairSteps &&
+                      activeDiagnostic.repairSteps.length > 0 && (
+                        <div>
+                          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                            Repair Steps
+                          </span>
+                          <ol className="mt-1 space-y-1">
+                            {activeDiagnostic.repairSteps.map((step, i) => (
+                              <li
+                                key={step}
+                                className="flex items-start gap-2 text-sm"
+                              >
+                                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center mt-0.5">
+                                  {i + 1}
+                                </span>
+                                <span className="pt-0.5">{step}</span>
+                              </li>
+                            ))}
+                          </ol>
+                        </div>
+                      )}
                     {repairItems.length > 0 && (
                       <div>
                         <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                          What Needs Repair
+                          Faulty Parameters
                         </span>
                         <ul className="mt-1 space-y-1">
                           {repairItems.map((item) => (
@@ -530,7 +682,7 @@ export function NewDiagnosis({
               </motion.div>
             )}
 
-            {/* Step 6 */}
+            {/* Step 6/7 — Report */}
             {!saved ? (
               <div className="flex justify-end">
                 <Button
@@ -556,7 +708,20 @@ export function NewDiagnosis({
         )}
       </AnimatePresence>
 
-      {!fault && problemDescription.trim().length === 0 && (
+      {/* Sub-fault group shown but no sub-fault selected yet */}
+      {subFaultGroup && !selectedSubFault && (
+        <div
+          className="flex items-center gap-2 text-primary bg-primary/5 border border-primary/20 rounded-lg px-4 py-3 text-sm font-medium"
+          data-ocid="diagnosis.subfault_prompt.card"
+        >
+          <Activity size={16} />
+          Select a specific fault type above to see targeted checks and test
+          values.
+        </div>
+      )}
+
+      {/* Empty state */}
+      {!subFaultGroup && !fault && problemDescription.trim().length === 0 && (
         <div
           className="flex flex-col items-center justify-center py-16 text-center border-2 border-dashed border-border rounded-xl"
           data-ocid="diagnosis.empty_state"
