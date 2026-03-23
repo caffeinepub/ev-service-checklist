@@ -23,8 +23,8 @@
     --popover: 1 0 0;
     --popover-foreground: 0.16 0.025 250;
 
-    /* Primary: electric blue */
-    --primary: 0.55 0.18 240;
+    /* Primary: orange */
+    --primary: 0.65 0.18 45;
     --primary-foreground: 1 0 0;
 
     --secondary: 0.94 0.01 240;
@@ -33,7 +33,7 @@
     --muted: 0.94 0.008 240;
     --muted-foreground: 0.52 0.025 240;
 
-    --accent: 0.9 0.015 240;
+    --accent: 0.94 0.015 45;
     --accent-foreground: 0.22 0.03 240;
 
     /* Destructive: red */
@@ -42,7 +42,7 @@
 
     --border: 0.88 0.012 240;
     --input: 0.94 0.01 240;
-    --ring: 0.55 0.18 240;
+    --ring: 0.65 0.18 45;
 
     /* Sidebar: deep navy */
     --sidebar-bg: 0.17 0.045 255;
@@ -89,19 +89,72 @@
   }
 }
 
+/* Report header gradient */
+.report-header {
+  background: linear-gradient(135deg, #1e2a4a 0%, #e86a1a 100%);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
 /* Print styles */
 @media print {
   @page {
     size: A4;
-    margin: 10mm;
+    margin: 12mm 10mm;
   }
+
+  /* Force color printing for backgrounds */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    background: white !important;
+  }
+
+  /* Hide nav & buttons */
   .no-print {
     display: none !important;
   }
+
+  /* Flatten the report card for print */
   .print-container {
     box-shadow: none !important;
+    border: none !important;
     border-radius: 0 !important;
-    max-width: 100% !important;
     padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Ensure logo prints clearly */
+  .report-logo {
+    height: 48px !important;
+    width: auto !important;
+  }
+
+  .print-logo-footer {
+    display: block !important;
+    opacity: 0.6 !important;
+  }
+
+  /* Table borders in print */
+  table {
+    border-collapse: collapse !important;
+  }
+
+  th,
+  td {
+    border: 1px solid #d1d5db !important;
+  }
+
+  /* Avoid page breaks inside sections */
+  .space-y-8 > * {
+    page-break-inside: avoid;
+  }
+
+  /* Table header background */
+  thead tr {
+    background-color: #fff7ed !important;
   }
 }

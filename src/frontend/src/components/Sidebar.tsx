@@ -5,7 +5,6 @@ import {
   Menu,
   PlusCircle,
   X,
-  Zap,
 } from "lucide-react";
 import { useState } from "react";
 import type { Page } from "../types";
@@ -27,16 +26,12 @@ export function Sidebar({ currentPage, onNavigate }: SidebarProps) {
 
   const NavContent = () => (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-3 px-5 py-5 border-b border-white/10">
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-primary flex-shrink-0">
-          <Zap size={18} className="text-white" />
-        </div>
-        <div>
-          <div className="text-white font-bold text-base leading-tight tracking-wide">
-            EV Service Pro
-          </div>
-          <div className="text-white/40 text-xs">Technician Dashboard</div>
-        </div>
+      <div className="px-4 py-4 border-b border-white/10 flex items-center justify-center">
+        <img
+          src="/assets/uploads/image-6-2.png"
+          alt="LogicZap NextGen"
+          className="w-full max-w-[160px] h-auto object-contain"
+        />
       </div>
 
       <nav className="flex-1 px-3 py-4 space-y-1" data-ocid="nav.panel">

@@ -81,7 +81,7 @@ export function ReportPage({
             className="flex items-center gap-2 bg-primary text-white"
             data-ocid="reports.print.button"
           >
-            <Printer size={14} /> Print Report
+            <Printer size={14} /> Print / Download PDF
           </Button>
         </div>
       </div>
@@ -91,22 +91,29 @@ export function ReportPage({
         className="bg-white rounded-xl border border-border shadow-paper p-8 space-y-8 print-container"
         data-ocid="reports.report.card"
       >
-        {/* Header */}
-        <div
-          className="rounded-xl p-6 text-white"
-          style={{
-            background:
-              "linear-gradient(135deg, oklch(var(--sidebar-bg)) 0%, oklch(var(--primary)) 100%)",
-          }}
-        >
-          <div className="flex items-start justify-between">
-            <div>
-              <div className="text-white/60 text-xs font-semibold uppercase tracking-widest mb-1">
-                EV Service Pro
+        {/* Header with logo */}
+        <div className="report-header rounded-xl p-6 text-white">
+          <div className="flex items-center justify-between">
+            {/* Logo left */}
+            <div className="flex items-center gap-4">
+              <img
+                src="/assets/uploads/image-6-2.png"
+                alt="Company Logo"
+                className="h-14 w-auto object-contain report-logo"
+                onError={(e) => {
+                  // fallback to light version if dark not found
+                  (e.target as HTMLImageElement).src =
+                    "/assets/uploads/image-5-1.png";
+                }}
+              />
+              <div>
+                <h2 className="text-xl font-bold leading-tight">
+                  EV Service Report
+                </h2>
+                <p className="text-white/70 text-sm mt-0.5">{date}</p>
               </div>
-              <h2 className="text-2xl font-bold">EV Service Report</h2>
-              <p className="text-white/70 text-sm mt-1">{date}</p>
             </div>
+            {/* Status right */}
             <div className="text-right">
               <div className="text-xs text-white/60 mb-1">Overall Status</div>
               {record.overallStatus === "ok" ? (
@@ -178,19 +185,19 @@ export function ReportPage({
             Test Results
           </h3>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm border-collapse">
               <thead>
-                <tr className="bg-muted/50 rounded">
-                  <th className="text-left p-2 font-semibold text-xs">
+                <tr className="bg-orange-50">
+                  <th className="text-left p-2 font-semibold text-xs border border-gray-200">
                     Parameter
                   </th>
-                  <th className="text-left p-2 font-semibold text-xs">
+                  <th className="text-left p-2 font-semibold text-xs border border-gray-200">
                     Expected
                   </th>
-                  <th className="text-left p-2 font-semibold text-xs">
+                  <th className="text-left p-2 font-semibold text-xs border border-gray-200">
                     Actual
                   </th>
-                  <th className="text-left p-2 font-semibold text-xs">
+                  <th className="text-left p-2 font-semibold text-xs border border-gray-200">
                     Status
                   </th>
                 </tr>
@@ -199,17 +206,19 @@ export function ReportPage({
                 {record.testResults.map((r, i) => (
                   <tr
                     key={r.parameter}
-                    className="border-b"
+                    className="border border-gray-200"
                     data-ocid={`reports.result.item.${i + 1}`}
                   >
-                    <td className="p-2 font-medium">{r.parameter}</td>
-                    <td className="p-2 text-muted-foreground">
+                    <td className="p-2 font-medium border border-gray-200">
+                      {r.parameter}
+                    </td>
+                    <td className="p-2 text-muted-foreground border border-gray-200">
                       {r.expectedValue}
                     </td>
-                    <td className="p-2">
+                    <td className="p-2 border border-gray-200">
                       {r.actualValue || "—"} {r.actualValue ? r.unit : ""}
                     </td>
-                    <td className="p-2">
+                    <td className="p-2 border border-gray-200">
                       <StatusBadge status={r.status} />
                     </td>
                   </tr>
@@ -253,7 +262,7 @@ export function ReportPage({
           </div>
         </div>
 
-        {/* Signature */}
+        {/* Signature + footer */}
         <div className="flex justify-between items-end pt-4 border-t">
           <div>
             <div className="w-48 h-12 border-b-2 border-foreground/30 mb-1" />
@@ -265,11 +274,18 @@ export function ReportPage({
             <div className="text-xs text-muted-foreground">
               Report ID: {record.id}
             </div>
+            {/* Logo watermark bottom-right in print */}
+            <img
+              src="/assets/uploads/image-5-1.png"
+              alt=""
+              aria-hidden="true"
+              className="h-8 w-auto object-contain mt-2 opacity-50 ml-auto print-logo-footer"
+            />
           </div>
         </div>
       </div>
 
-      {/* Caffeine footer */}
+      {/* Screen footer */}
       <div className="text-xs text-muted-foreground text-center pb-4 no-print">
         © {new Date().getFullYear()}. Built with ❤️ using{" "}
         <a
