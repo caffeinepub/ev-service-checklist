@@ -5442,6 +5442,1269 @@ export const FAULT_DEFS: FaultDef[] = [
       "Escalate to specialist if unresolved",
     ],
   },
+  // ─── BATTERY SPECIFIC FAULTS (1–50) ───────────────────────────────────────
+  {
+    keywords: ["not charging", "no charging", "charger no output"],
+    category: "Charging Issue",
+    checks: ["Charger output DC voltage", "Battery surface temperature scan"],
+    expectedValues: [
+      { label: "Charger Output", value: "DC 20V+" },
+      { label: "Battery Surface Temp", value: "< 45°C" },
+    ],
+    testParams: [
+      {
+        parameter: "Charger Output Voltage",
+        expectedValue: "DC 20V+",
+        expectedMin: 18,
+        expectedMax: 30,
+        unit: "V",
+      },
+    ],
+    tools: ["Multimeter"],
+    rootCause: "Faulty charger or battery not accepting charge.",
+    repairSteps: [
+      "Measure charger output DC voltage",
+      "Scan battery surface with IR thermometer",
+      "Replace charger if no output",
+      "Replace battery if not accepting charge",
+    ],
+  },
+  {
+    keywords: ["battery hot", "battery temperature high", "battery overheat"],
+    category: "General Fault",
+    checks: [
+      "IR scan of battery surface",
+      "Emissivity setting 0.95",
+      "Temperature rise",
+    ],
+    expectedValues: [{ label: "Battery Surface Temp", value: "< 45°C" }],
+    testParams: [
+      {
+        parameter: "Battery Surface Temperature",
+        expectedValue: "< 45°C",
+        expectedMin: 0,
+        expectedMax: 45,
+        unit: "°C",
+      },
+    ],
+    tools: ["IR Thermometer"],
+    rootCause: "Overloaded cells, poor cooling, or thermal runaway onset.",
+    repairSteps: [
+      "IR scan battery at emissivity 0.95",
+      "Remove load immediately",
+      "Allow to cool in open air",
+      "Dispose if temperature exceeds 60°C",
+    ],
+  },
+  {
+    keywords: ["battery swelling", "swollen battery", "bulging battery"],
+    category: "General Fault",
+    checks: ["Visual casing inspection for bulge or deformation"],
+    expectedValues: [{ label: "Casing Shape", value: "Flat / No bulge" }],
+    testParams: [
+      {
+        parameter: "Visual Casing Condition",
+        expectedValue: "No bulge",
+        expectedMin: 0,
+        expectedMax: 0,
+        unit: "",
+      },
+    ],
+    tools: ["Visual inspection"],
+    rootCause:
+      "Gas buildup from overcharge, over-discharge, or cell degradation.",
+    repairSteps: [
+      "Visually inspect all sides",
+      "Do NOT puncture",
+      "Isolate and dispose immediately at battery recycling center",
+    ],
+  },
+  {
+    keywords: ["rapid discharge", "battery draining fast", "fast drain"],
+    category: "General Fault",
+    checks: ["Full charge then monitor DC voltage across terminals over time"],
+    expectedValues: [
+      { label: "Voltage (full charge)", value: "48V–60V (system dependent)" },
+    ],
+    testParams: [
+      {
+        parameter: "Battery Voltage (full)",
+        expectedValue: "48–60V",
+        expectedMin: 44,
+        expectedMax: 67,
+        unit: "V",
+      },
+    ],
+    tools: ["Multimeter"],
+    rootCause: "Degraded or shorted cells causing excessive self-discharge.",
+    repairSteps: [
+      "Fully charge battery",
+      "Monitor voltage drop over 1 hour",
+      "If drop > 2V at rest, replace cells",
+    ],
+  },
+  {
+    keywords: ["overcharge", "battery overcharging"],
+    category: "Charging Issue",
+    checks: ["Measure charging voltage DC across terminals"],
+    expectedValues: [
+      { label: "Max Charging Voltage (48V)", value: "≤ 54.6V" },
+      { label: "Max Charging Voltage (60V)", value: "≤ 67.2V" },
+    ],
+    testParams: [
+      {
+        parameter: "Charging Voltage",
+        expectedValue: "≤ 54.6V (48V system)",
+        expectedMin: 0,
+        expectedMax: 55,
+        unit: "V",
+      },
+    ],
+    tools: ["Multimeter"],
+    rootCause: "BMS overcharge protection failure or incorrect charger.",
+    repairSteps: [
+      "Measure voltage during charging",
+      "If above limit, stop charging",
+      "Replace charger",
+      "Replace BMS if protection not triggering",
+    ],
+  },
+  {
+    keywords: ["under voltage", "undervoltage", "battery low voltage"],
+    category: "General Fault",
+    checks: ["Measure battery voltage at rest"],
+    expectedValues: [
+      { label: "Minimum Battery Voltage (48V)", value: "≥ 40V" },
+    ],
+    testParams: [
+      {
+        parameter: "Battery Resting Voltage",
+        expectedValue: "≥ 40V (48V system)",
+        expectedMin: 40,
+        expectedMax: 60,
+        unit: "V",
+      },
+    ],
+    tools: ["Multimeter"],
+    rootCause: "Deep discharge or cell failure.",
+    repairSteps: [
+      "Measure voltage",
+      "If below cutoff, attempt slow recovery charge",
+      "Replace battery pack if not recovering",
+    ],
+  },
+  {
+    keywords: ["cell imbalance", "SOC mismatch", "unbalanced cells"],
+    category: "BMS Fault",
+    checks: [
+      "Check individual cell voltages in Li-ion mode",
+      "Pack terminal voltage",
+    ],
+    expectedValues: [{ label: "Cell Voltage Difference", value: "< 50mV" }],
+    testParams: [
+      {
+        parameter: "Cell Voltage Spread",
+        expectedValue: "< 50mV",
+        expectedMin: 0,
+        expectedMax: 0.05,
+        unit: "V",
+      },
+    ],
+    tools: ["Battery Analyzer"],
+    rootCause: "Aged or failed cells pulling down SOC of entire pack.",
+    repairSteps: [
+      "Use analyzer in Li-ion mode",
+      "Identify weak cells",
+      "Balance or replace cell modules",
+    ],
+  },
+  {
+    keywords: ["internal short", "battery internal short circuit"],
+    category: "General Fault",
+    checks: ["IR scan surface at emissivity 0.95"],
+    expectedValues: [{ label: "Hotspot Temperature", value: "< 45°C" }],
+    testParams: [
+      {
+        parameter: "Battery Hotspot Temp",
+        expectedValue: "< 45°C",
+        expectedMin: 0,
+        expectedMax: 45,
+        unit: "°C",
+      },
+    ],
+    tools: ["IR Thermometer"],
+    rootCause: "Internal electrode short causing heat buildup.",
+    repairSteps: [
+      "IR scan at emissivity 0.95",
+      "Isolate battery immediately if hotspot > 60°C",
+      "Dispose — not field repairable",
+    ],
+  },
+  {
+    keywords: ["external short", "battery external short"],
+    category: "Wiring / Connector Fault",
+    checks: [
+      "Continuity check on external wiring",
+      "Check for short path between terminals",
+    ],
+    expectedValues: [
+      {
+        label: "Terminal-to-Terminal Resistance",
+        value: "High (open circuit)",
+      },
+    ],
+    testParams: [
+      {
+        parameter: "External Short Resistance",
+        expectedValue: "Open circuit (> 10kΩ)",
+        expectedMin: 10000,
+        expectedMax: 999999,
+        unit: "Ω",
+      },
+    ],
+    tools: ["Multimeter"],
+    rootCause: "Wiring fault or pinched cable creating short circuit path.",
+    repairSteps: [
+      "Check all wiring from battery terminals",
+      "Identify short path with continuity test",
+      "Repair or replace damaged wiring",
+    ],
+  },
+  {
+    keywords: ["charger failure", "charger not working", "charger dead"],
+    category: "Charging Issue",
+    checks: ["Measure voltage across charger output terminals"],
+    expectedValues: [
+      { label: "Charger Output", value: "DC 54–67V (system dependent)" },
+    ],
+    testParams: [
+      {
+        parameter: "Charger Output Voltage",
+        expectedValue: "DC 54–67V",
+        expectedMin: 50,
+        expectedMax: 70,
+        unit: "V",
+      },
+    ],
+    tools: ["Multimeter"],
+    rootCause: "Internal charger PCB failure.",
+    repairSteps: [
+      "Measure charger output with multimeter",
+      "No output = replace charger",
+      "Check fuse inside charger if accessible",
+    ],
+  },
+  {
+    keywords: ["BMS failure", "bms dead", "battery management system fault"],
+    category: "BMS Fault",
+    checks: ["Measure BMS input voltage", "Measure BMS output voltage"],
+    expectedValues: [
+      { label: "BMS Input", value: "Battery voltage" },
+      { label: "BMS Output", value: "Battery voltage (within 0.5V)" },
+    ],
+    testParams: [
+      {
+        parameter: "BMS Output Voltage",
+        expectedValue: "≈ battery voltage",
+        expectedMin: 40,
+        expectedMax: 67,
+        unit: "V",
+      },
+    ],
+    tools: ["Multimeter"],
+    rootCause: "BMS PCB failure, MOSFET failure, or communication error.",
+    repairSteps: [
+      "Measure input and output of BMS",
+      "If input present but no output, BMS is faulty",
+      "Replace BMS module",
+    ],
+  },
+  {
+    keywords: [
+      "loose connection battery",
+      "battery loose wire",
+      "battery connector loose",
+    ],
+    category: "Wiring / Connector Fault",
+    checks: ["Measure voltage across battery connectors under load"],
+    expectedValues: [
+      { label: "Voltage Drop Across Connector", value: "< 0.2V" },
+    ],
+    testParams: [
+      {
+        parameter: "Connector Voltage Drop",
+        expectedValue: "< 0.2V",
+        expectedMin: 0,
+        expectedMax: 0.2,
+        unit: "V",
+      },
+    ],
+    tools: ["Multimeter"],
+    rootCause: "Loose or corroded connector causing intermittent contact.",
+    repairSteps: [
+      "Check all battery connectors",
+      "Measure drop under load",
+      "Tighten or replace connector",
+    ],
+  },
+  {
+    keywords: [
+      "corrosion battery",
+      "corroded terminals",
+      "battery terminal rust",
+    ],
+    category: "General Fault",
+    checks: [
+      "Visual inspection of terminals",
+      "Resistance check across terminal joint",
+    ],
+    expectedValues: [
+      {
+        label: "Terminal Condition",
+        value: "Clean metal — no green/white buildup",
+      },
+    ],
+    testParams: [
+      {
+        parameter: "Terminal Visual Condition",
+        expectedValue: "No corrosion",
+        expectedMin: 0,
+        expectedMax: 0,
+        unit: "",
+      },
+    ],
+    tools: ["Visual inspection", "Multimeter"],
+    rootCause: "Moisture exposure causing oxidation on battery terminals.",
+    repairSteps: [
+      "Clean terminals with wire brush or baking soda solution",
+      "Apply terminal grease",
+      "Retest continuity",
+    ],
+  },
+  {
+    keywords: ["overcurrent battery", "battery high current"],
+    category: "General Fault",
+    checks: ["Measure DC current on one battery wire under load"],
+    expectedValues: [
+      { label: "Battery Current (normal)", value: "≤ rated amperage" },
+    ],
+    testParams: [
+      {
+        parameter: "Battery Current Draw",
+        expectedValue: "Within rated amps",
+        expectedMin: 0,
+        expectedMax: 40,
+        unit: "A",
+      },
+    ],
+    tools: ["Clamp Meter"],
+    rootCause:
+      "Overloaded motor, shorted controller, or missing current limit in BMS.",
+    repairSteps: [
+      "Clamp meter on battery wire",
+      "If current exceeds spec, reduce load",
+      "Check BMS current limit settings",
+    ],
+  },
+  {
+    keywords: ["thermal runaway battery", "battery smoke"],
+    category: "General Fault",
+    checks: [
+      "IR scan on battery at emissivity 0.95",
+      "Temperature rise monitoring",
+    ],
+    expectedValues: [{ label: "Max Safe Temp", value: "< 60°C" }],
+    testParams: [
+      {
+        parameter: "Battery Temperature",
+        expectedValue: "< 60°C",
+        expectedMin: 0,
+        expectedMax: 60,
+        unit: "°C",
+      },
+    ],
+    tools: ["IR Thermometer"],
+    rootCause: "Uncontrolled exothermic reaction in cells.",
+    repairSteps: [
+      "Emergency: remove from vehicle",
+      "Do NOT use water",
+      "Use dry sand or CO2 extinguisher",
+      "Evacuate area — toxic fumes risk",
+    ],
+  },
+  {
+    keywords: ["voltage drop battery", "battery voltage sag"],
+    category: "General Fault",
+    checks: [
+      "Load test — measure DC voltage at terminals under load",
+      "Compare individual cells",
+    ],
+    expectedValues: [{ label: "Voltage Sag Under Load", value: "< 5V drop" }],
+    testParams: [
+      {
+        parameter: "Voltage Sag Under Load",
+        expectedValue: "< 5V",
+        expectedMin: 0,
+        expectedMax: 5,
+        unit: "V",
+      },
+    ],
+    tools: ["Multimeter"],
+    rootCause: "Degraded cells with high internal resistance.",
+    repairSteps: [
+      "Load test battery",
+      "If sag > 5V, cells are degraded",
+      "Replace cell modules or full pack",
+    ],
+  },
+  {
+    keywords: ["deep discharge", "battery fully drained", "zero volt battery"],
+    category: "General Fault",
+    checks: ["Measure DC voltage", "Attempt slow charge recovery"],
+    expectedValues: [
+      { label: "Recovery Voltage After Slow Charge", value: "≥ 30V in 30 min" },
+    ],
+    testParams: [
+      {
+        parameter: "Battery Voltage",
+        expectedValue: "≥ 30V after slow charge",
+        expectedMin: 30,
+        expectedMax: 67,
+        unit: "V",
+      },
+    ],
+    tools: ["Multimeter"],
+    rootCause: "Battery left discharged for extended period.",
+    repairSteps: [
+      "Apply slow charge at 0.1C",
+      "Monitor voltage recovery",
+      "If no recovery after 30 min, replace pack",
+    ],
+  },
+  {
+    keywords: [
+      "water damage battery",
+      "battery water ingress",
+      "flooded battery",
+    ],
+    category: "General Fault",
+    checks: [
+      "Visual for moisture in connectors",
+      "Continuity and resistance check",
+    ],
+    expectedValues: [{ label: "Connector Moisture", value: "Dry" }],
+    testParams: [
+      {
+        parameter: "Connector Moisture Level",
+        expectedValue: "Dry",
+        expectedMin: 0,
+        expectedMax: 0,
+        unit: "",
+      },
+    ],
+    tools: ["Visual inspection", "Multimeter"],
+    rootCause: "Water ingress causing short circuits or corrosion.",
+    repairSteps: [
+      "Disconnect battery",
+      "Dry all connectors",
+      "Use moisture displacing spray",
+      "Replace if severe damage",
+    ],
+  },
+  {
+    keywords: [
+      "connector burn battery",
+      "battery connector burnt",
+      "melted battery connector",
+    ],
+    category: "Wiring / Connector Fault",
+    checks: ["Visual inspection of connector condition"],
+    expectedValues: [
+      { label: "Connector Condition", value: "Clean metal — no burn marks" },
+    ],
+    testParams: [
+      {
+        parameter: "Connector Visual Condition",
+        expectedValue: "No burn",
+        expectedMin: 0,
+        expectedMax: 0,
+        unit: "",
+      },
+    ],
+    tools: ["Visual inspection"],
+    rootCause: "Loose contact or overcurrent causing arcing at connector.",
+    repairSteps: [
+      "Inspect connector for burn or melt",
+      "Replace connector immediately",
+      "Check current ratings match",
+    ],
+  },
+  {
+    keywords: ["parasitic drain", "battery drains when off", "standby drain"],
+    category: "General Fault",
+    checks: ["Measure idle current in series (amp mode)"],
+    expectedValues: [{ label: "Idle Current", value: "< 5mA" }],
+    testParams: [
+      {
+        parameter: "Idle Current Draw",
+        expectedValue: "< 5mA",
+        expectedMin: 0,
+        expectedMax: 0.005,
+        unit: "A",
+      },
+    ],
+    tools: ["Multimeter"],
+    rootCause: "Component drawing current when vehicle is off.",
+    repairSteps: [
+      "Set multimeter to mA series mode",
+      "Check idle current with vehicle off",
+      "Identify and fix the draining circuit",
+    ],
+  },
+  {
+    keywords: ["slow charging", "charging slowly", "battery charges slow"],
+    category: "Charging Issue",
+    checks: ["Measure charge current", "Verify correct charger specification"],
+    expectedValues: [{ label: "Charge Current", value: "≥ 2A" }],
+    testParams: [
+      {
+        parameter: "Charge Current",
+        expectedValue: "≥ 2A",
+        expectedMin: 2,
+        expectedMax: 20,
+        unit: "A",
+      },
+    ],
+    tools: ["Multimeter"],
+    rootCause: "Wrong charger, damaged cable, or BMS limiting current.",
+    repairSteps: [
+      "Verify charger output current rating",
+      "Use correct charger",
+      "Check for damaged charge cable",
+    ],
+  },
+  {
+    keywords: [
+      "fast charging fault",
+      "DC fast charge fail",
+      "quick charge not working",
+    ],
+    category: "Charging Issue",
+    checks: [
+      "Measure charge current and voltage",
+      "Verify fast charge compatibility",
+    ],
+    expectedValues: [
+      { label: "Fast Charge Current", value: "As specified (10–20A)" },
+    ],
+    testParams: [
+      {
+        parameter: "Fast Charge Current",
+        expectedValue: "10–20A",
+        expectedMin: 10,
+        expectedMax: 20,
+        unit: "A",
+      },
+    ],
+    tools: ["Multimeter"],
+    rootCause: "Charger mismatch or BMS blocking fast charge.",
+    repairSteps: [
+      "Check charger current/voltage specs",
+      "Ensure BMS supports fast charge",
+      "Use OEM fast charger",
+    ],
+  },
+  {
+    keywords: [
+      "battery not holding charge",
+      "poor battery life",
+      "charge not holding",
+    ],
+    category: "General Fault",
+    checks: ["Battery cycle test with analyzer"],
+    expectedValues: [
+      { label: "Capacity Retention", value: "≥ 80% of rated capacity" },
+    ],
+    testParams: [
+      {
+        parameter: "Capacity Retention",
+        expectedValue: "≥ 80%",
+        expectedMin: 80,
+        expectedMax: 100,
+        unit: "%",
+      },
+    ],
+    tools: ["Battery Analyzer"],
+    rootCause: "Cell aging or degradation reducing capacity.",
+    repairSteps: ["Run full cycle test", "If capacity < 80%, replace battery"],
+  },
+  {
+    keywords: ["physical damage battery", "battery crack", "cracked battery"],
+    category: "General Fault",
+    checks: [
+      "Visual inspection for cracks, deformation, or electrolyte leakage",
+    ],
+    expectedValues: [
+      { label: "Physical Condition", value: "No cracks, no leakage" },
+    ],
+    testParams: [
+      {
+        parameter: "Visual Inspection",
+        expectedValue: "No damage",
+        expectedMin: 0,
+        expectedMax: 0,
+        unit: "",
+      },
+    ],
+    tools: ["Visual inspection"],
+    rootCause: "Physical impact or improper handling.",
+    repairSteps: [
+      "Inspect all surfaces",
+      "If cracked or leaking — dispose immediately",
+      "Replace with OEM battery",
+    ],
+  },
+  {
+    keywords: ["insulation failure battery", "cell insulation breakdown"],
+    category: "General Fault",
+    checks: ["Measure body resistance from terminal to battery casing"],
+    expectedValues: [{ label: "Body Insulation Resistance", value: "≥ 1MΩ" }],
+    testParams: [
+      {
+        parameter: "Insulation Resistance",
+        expectedValue: "≥ 1MΩ",
+        expectedMin: 1000000,
+        expectedMax: 999999999,
+        unit: "Ω",
+      },
+    ],
+    tools: ["Multimeter"],
+    rootCause: "Degraded cell insulation causing leakage to chassis.",
+    repairSteps: [
+      "Measure resistance from terminal to casing",
+      "If < 1MΩ, insulation has failed",
+      "Replace insulation or battery",
+    ],
+  },
+  {
+    keywords: ["gas buildup battery", "battery gas", "battery off-gas"],
+    category: "General Fault",
+    checks: ["Visual inspection for body leakage or deformation"],
+    expectedValues: [
+      { label: "Battery Body", value: "No swelling or leakage" },
+    ],
+    testParams: [
+      {
+        parameter: "Body Condition",
+        expectedValue: "No gas buildup",
+        expectedMin: 0,
+        expectedMax: 0,
+        unit: "",
+      },
+    ],
+    tools: ["Visual inspection"],
+    rootCause: "Overcharge or thermal degradation producing gas inside cells.",
+    repairSteps: [
+      "Inspect for swelling",
+      "Do NOT puncture",
+      "Dispose at certified battery recycler",
+    ],
+  },
+  {
+    keywords: ["battery SOC wrong", "SOC error", "battery gauge wrong"],
+    category: "BMS Fault",
+    checks: ["Compare BMS SOC reading with actual measured voltage"],
+    expectedValues: [{ label: "SOC vs Voltage Accuracy", value: "Within ±5%" }],
+    testParams: [
+      {
+        parameter: "SOC Accuracy",
+        expectedValue: "±5%",
+        expectedMin: -5,
+        expectedMax: 5,
+        unit: "%",
+      },
+    ],
+    tools: ["Battery Analyzer"],
+    rootCause: "BMS calibration drift or cell voltage measurement error.",
+    repairSteps: [
+      "Use analyzer to compare actual SOC with BMS reading",
+      "Recalibrate BMS",
+      "Replace BMS if calibration fails",
+    ],
+  },
+  {
+    keywords: ["storage issue battery", "battery self discharge storage"],
+    category: "General Fault",
+    checks: [
+      "Measure voltage after storage period",
+      "Check storage charge level",
+    ],
+    expectedValues: [
+      { label: "Storage Charge Level", value: "~50% SOC" },
+      { label: "Voltage After Storage", value: "≥ 90% of initial" },
+    ],
+    testParams: [
+      {
+        parameter: "Voltage After Storage",
+        expectedValue: "≥ 90% of initial",
+        expectedMin: 0,
+        expectedMax: 0,
+        unit: "V",
+      },
+    ],
+    tools: ["Multimeter"],
+    rootCause: "Battery stored fully charged or empty causing degradation.",
+    repairSteps: [
+      "Store battery at 50% SOC",
+      "Check voltage after storage",
+      "Recondition if discharged below safe level",
+    ],
+  },
+  {
+    keywords: [
+      "overcharge cycles",
+      "battery cycle count high",
+      "battery worn out",
+    ],
+    category: "General Fault",
+    checks: ["Cycle count test via analyzer"],
+    expectedValues: [
+      { label: "Cycle Life", value: "500–1000 cycles (manufacturer spec)" },
+    ],
+    testParams: [
+      {
+        parameter: "Cycle Count",
+        expectedValue: "< 1000",
+        expectedMin: 0,
+        expectedMax: 1000,
+        unit: "cycles",
+      },
+    ],
+    tools: ["Battery Analyzer"],
+    rootCause: "Battery exceeded rated cycle life.",
+    repairSteps: ["Run cycle count test", "If exceeded spec, replace battery"],
+  },
+  {
+    keywords: [
+      "battery physical deformation",
+      "battery expansion",
+      "pouch deform",
+    ],
+    category: "General Fault",
+    checks: ["Visual inspection for expansion or deformation"],
+    expectedValues: [
+      { label: "Physical Shape", value: "Original — no expansion" },
+    ],
+    testParams: [
+      {
+        parameter: "Visual Deformation",
+        expectedValue: "None",
+        expectedMin: 0,
+        expectedMax: 0,
+        unit: "",
+      },
+    ],
+    tools: ["Visual inspection"],
+    rootCause: "Internal gas pressure from overcharge or degradation.",
+    repairSteps: ["Inspect all surfaces", "Replace immediately if deformed"],
+  },
+  {
+    keywords: [
+      "insulation resistance failure",
+      "megger test battery fail",
+      "IR test battery",
+    ],
+    category: "General Fault",
+    checks: ["IR test on battery pack in IR mode"],
+    expectedValues: [{ label: "Insulation Resistance (pack)", value: "≥ 1MΩ" }],
+    testParams: [
+      {
+        parameter: "Pack Insulation Resistance",
+        expectedValue: "≥ 1MΩ",
+        expectedMin: 1000000,
+        expectedMax: 999999999,
+        unit: "Ω",
+      },
+    ],
+    tools: ["Battery Analyzer"],
+    rootCause: "Degraded pack insulation causing safety risk.",
+    repairSteps: [
+      "Use analyzer in IR mode",
+      "Measure insulation resistance",
+      "Replace battery if below limit",
+    ],
+  },
+  {
+    keywords: ["not hold charge battery", "charge drops fast overnight"],
+    category: "General Fault",
+    checks: ["Charge battery fully, leave overnight, measure morning voltage"],
+    expectedValues: [{ label: "Overnight Voltage Drop", value: "< 1V" }],
+    testParams: [
+      {
+        parameter: "Overnight Voltage Drop",
+        expectedValue: "< 1V",
+        expectedMin: 0,
+        expectedMax: 1,
+        unit: "V",
+      },
+    ],
+    tools: ["Multimeter"],
+    rootCause: "High self-discharge rate due to cell degradation.",
+    repairSteps: [
+      "Fully charge and measure voltage",
+      "Check voltage next morning",
+      "If drop > 1V, replace battery",
+    ],
+  },
+  {
+    keywords: ["EMI battery", "battery electromagnetic interference"],
+    category: "General Fault",
+    checks: ["Measure noise signal in AC mode on battery output"],
+    expectedValues: [
+      { label: "AC Noise on Battery Output", value: "< 50mV AC" },
+    ],
+    testParams: [
+      {
+        parameter: "AC Noise (Battery Output)",
+        expectedValue: "< 50mV",
+        expectedMin: 0,
+        expectedMax: 0.05,
+        unit: "V",
+      },
+    ],
+    tools: ["Oscilloscope", "Multimeter"],
+    rootCause: "External EMI or switching noise affecting battery monitoring.",
+    repairSteps: [
+      "Set multimeter to AC mode",
+      "Measure noise on battery output",
+      "Add shielding or ferrite cores if needed",
+    ],
+  },
+  {
+    keywords: ["solder joint battery", "cold solder battery"],
+    category: "General Fault",
+    checks: ["Continuity test on solder joints"],
+    expectedValues: [{ label: "Joint Continuity", value: "Solid — 0 ohm" }],
+    testParams: [
+      {
+        parameter: "Solder Joint Resistance",
+        expectedValue: "≈ 0Ω",
+        expectedMin: 0,
+        expectedMax: 0.5,
+        unit: "Ω",
+      },
+    ],
+    tools: ["Multimeter"],
+    rootCause: "Cold solder joint causing intermittent connection.",
+    repairSteps: [
+      "Check continuity at all solder joints",
+      "Re-solder any suspect joints",
+      "Retest continuity",
+    ],
+  },
+  {
+    keywords: ["calibration error battery", "BMS calibration wrong"],
+    category: "BMS Fault",
+    checks: ["Compare actual SOC with BMS reading using analyzer"],
+    expectedValues: [{ label: "Calibration Accuracy", value: "±5%" }],
+    testParams: [
+      {
+        parameter: "BMS Calibration Error",
+        expectedValue: "±5%",
+        expectedMin: -5,
+        expectedMax: 5,
+        unit: "%",
+      },
+    ],
+    tools: ["Battery Analyzer"],
+    rootCause: "BMS firmware calibration drift.",
+    repairSteps: [
+      "Compare analyzer SOC vs BMS SOC",
+      "Recalibrate BMS",
+      "Update firmware if available",
+    ],
+  },
+  {
+    keywords: [
+      "firmware bug battery",
+      "BMS firmware",
+      "software fault battery",
+    ],
+    category: "BMS Fault",
+    checks: ["Check BMS software version via BMS port"],
+    expectedValues: [
+      { label: "Firmware Version", value: "Latest OEM version" },
+    ],
+    testParams: [
+      {
+        parameter: "BMS Firmware Status",
+        expectedValue: "Latest version",
+        expectedMin: 0,
+        expectedMax: 0,
+        unit: "",
+      },
+    ],
+    tools: ["Software diagnostic tool"],
+    rootCause: "Outdated or corrupt BMS firmware causing incorrect behavior.",
+    repairSteps: [
+      "Connect to BMS port",
+      "Check firmware version",
+      "Update to latest OEM firmware",
+    ],
+  },
+  {
+    keywords: ["load mismatch battery", "battery overloaded"],
+    category: "General Fault",
+    checks: ["Measure current draw under load"],
+    expectedValues: [
+      { label: "Load Current", value: "≤ rated battery current" },
+    ],
+    testParams: [
+      {
+        parameter: "Load Current",
+        expectedValue: "≤ rated",
+        expectedMin: 0,
+        expectedMax: 40,
+        unit: "A",
+      },
+    ],
+    tools: ["Clamp Meter"],
+    rootCause:
+      "Motor or controller drawing more current than battery is rated for.",
+    repairSteps: [
+      "Clamp meter on battery wire",
+      "Compare to battery current rating",
+      "Reduce load or upgrade battery",
+    ],
+  },
+  {
+    keywords: ["cell aging", "old cells", "aged battery cells"],
+    category: "General Fault",
+    checks: ["Capacity test with analyzer"],
+    expectedValues: [{ label: "Cell Capacity", value: "≥ 80% of rated" }],
+    testParams: [
+      {
+        parameter: "Cell Capacity Retention",
+        expectedValue: "≥ 80%",
+        expectedMin: 80,
+        expectedMax: 100,
+        unit: "%",
+      },
+    ],
+    tools: ["Battery Analyzer"],
+    rootCause: "End-of-life cells with reduced capacity.",
+    repairSteps: ["Run capacity test", "If below 80%, replace cell modules"],
+  },
+  {
+    keywords: ["port damage battery", "battery port burnt"],
+    category: "Wiring / Connector Fault",
+    checks: [
+      "Inspect charge port for burn, deformation",
+      "Measure port contact resistance",
+    ],
+    expectedValues: [{ label: "Port Condition", value: "Clean, no burn" }],
+    testParams: [
+      {
+        parameter: "Port Visual Condition",
+        expectedValue: "No damage",
+        expectedMin: 0,
+        expectedMax: 0,
+        unit: "",
+      },
+    ],
+    tools: ["Multimeter"],
+    rootCause: "Overcurrent or loose port connection causing arcing.",
+    repairSteps: [
+      "Inspect charge port visually",
+      "Replace port if burnt",
+      "Check connector alignment",
+    ],
+  },
+  {
+    keywords: [
+      "protection trip battery",
+      "BMS trip",
+      "battery protection activated",
+    ],
+    category: "BMS Fault",
+    checks: ["Check if BMS has tripped", "Measure battery voltage"],
+    expectedValues: [
+      { label: "BMS Output", value: "Voltage present after reset" },
+    ],
+    testParams: [
+      {
+        parameter: "BMS Output After Reset",
+        expectedValue: "Battery voltage",
+        expectedMin: 40,
+        expectedMax: 67,
+        unit: "V",
+      },
+    ],
+    tools: ["Multimeter"],
+    rootCause:
+      "BMS protection triggered by overcurrent, overvoltage, or over-temperature.",
+    repairSteps: [
+      "Try resetting BMS as per manual",
+      "Check for cause of trip (voltage, current, temp)",
+      "Replace BMS if trip is not resettable",
+    ],
+  },
+  {
+    keywords: ["EMI issue battery", "battery EMI problem"],
+    category: "General Fault",
+    checks: ["Measure noise on battery output in AC mode"],
+    expectedValues: [{ label: "AC Noise Level", value: "< 50mV" }],
+    testParams: [
+      {
+        parameter: "AC Noise (Battery Output)",
+        expectedValue: "< 50mV",
+        expectedMin: 0,
+        expectedMax: 0.05,
+        unit: "V",
+      },
+    ],
+    tools: ["Multimeter"],
+    rootCause: "EMI from nearby components affecting battery signal lines.",
+    repairSteps: [
+      "Measure AC noise signal",
+      "Add shielding around battery wiring",
+      "Use ferrite beads on cables",
+    ],
+  },
+  {
+    keywords: ["cell aging issue", "battery aged cells degraded"],
+    category: "General Fault",
+    checks: ["IR test on cells", "Capacity check"],
+    expectedValues: [
+      {
+        label: "Cell IR (Internal Resistance)",
+        value: "Within manufacturer spec",
+      },
+    ],
+    testParams: [
+      {
+        parameter: "Cell Internal Resistance",
+        expectedValue: "Within spec",
+        expectedMin: 0,
+        expectedMax: 200,
+        unit: "mΩ",
+      },
+    ],
+    tools: ["Battery Analyzer"],
+    rootCause: "Aged cells generate heat due to increased internal resistance.",
+    repairSteps: [
+      "IR test cells",
+      "Replace cells exceeding resistance limit",
+      "Improve battery ventilation and cooling",
+    ],
+  },
+  {
+    keywords: [
+      "high temperature cell",
+      "battery cell hot",
+      "specific cell overheating",
+    ],
+    category: "General Fault",
+    checks: ["IR scan of individual cells at emissivity 0.95"],
+    expectedValues: [{ label: "Cell Temperature", value: "< 45°C" }],
+    testParams: [
+      {
+        parameter: "Individual Cell Temp",
+        expectedValue: "< 45°C",
+        expectedMin: 0,
+        expectedMax: 45,
+        unit: "°C",
+      },
+    ],
+    tools: ["IR Thermometer"],
+    rootCause:
+      "One or more cells with elevated internal resistance generating heat.",
+    repairSteps: [
+      "IR scan all cells",
+      "Identify hottest cell",
+      "Replace that cell or module",
+    ],
+  },
+  {
+    keywords: ["high resistance cell", "battery high spec"],
+    category: "General Fault",
+    checks: ["Spec check in IR mode with analyzer"],
+    expectedValues: [
+      { label: "Cell Resistance", value: "Within spec (mΩ range)" },
+    ],
+    testParams: [
+      {
+        parameter: "Cell Internal Resistance",
+        expectedValue: "< spec limit",
+        expectedMin: 0,
+        expectedMax: 200,
+        unit: "mΩ",
+      },
+    ],
+    tools: ["Battery Analyzer"],
+    rootCause: "High resistance cell reducing overall pack performance.",
+    repairSteps: [
+      "Use analyzer IR mode",
+      "Identify high resistance cells",
+      "Replace out-of-spec cells",
+    ],
+  },
+  {
+    keywords: ["high resistance battery", "45 resistance"],
+    category: "General Fault",
+    checks: ["IR mode measurement with analyzer"],
+    expectedValues: [{ label: "Pack Resistance", value: "Within rated spec" }],
+    testParams: [
+      {
+        parameter: "Pack Internal Resistance",
+        expectedValue: "Within spec",
+        expectedMin: 0,
+        expectedMax: 500,
+        unit: "mΩ",
+      },
+    ],
+    tools: ["Battery Analyzer"],
+    rootCause: "Aging or damaged pack with high overall internal resistance.",
+    repairSteps: [
+      "Measure in IR mode",
+      "Compare to spec",
+      "Replace pack if above limit",
+    ],
+  },
+  {
+    keywords: ["not holding charge DC", "charge holds not"],
+    category: "General Fault",
+    checks: ["Charge and monitor DC voltage over time"],
+    expectedValues: [
+      { label: "Charge Retention", value: "> 95% after 1 hour at rest" },
+    ],
+    testParams: [
+      {
+        parameter: "Voltage Retention (1 hr)",
+        expectedValue: "> 95%",
+        expectedMin: 95,
+        expectedMax: 100,
+        unit: "%",
+      },
+    ],
+    tools: ["Multimeter"],
+    rootCause: "Faulty wiring drawing load or degraded cells.",
+    repairSteps: [
+      "Charge fully",
+      "Monitor voltage drop over 1 hour",
+      "Fix wiring leakage or replace battery",
+    ],
+  },
+  {
+    keywords: [
+      "intermittent battery output",
+      "battery cuts in out",
+      "random battery disconnect",
+    ],
+    category: "Wiring / Connector Fault",
+    checks: ["Wiggle test — monitor voltage while flexing connectors"],
+    expectedValues: [
+      { label: "Voltage During Wiggle", value: "Stable — no drops" },
+    ],
+    testParams: [
+      {
+        parameter: "Voltage Stability (wiggle test)",
+        expectedValue: "Stable",
+        expectedMin: 40,
+        expectedMax: 67,
+        unit: "V",
+      },
+    ],
+    tools: ["Multimeter"],
+    rootCause:
+      "Loose connector or fractured wire causing intermittent contact.",
+    repairSteps: [
+      "Wiggle all connectors while monitoring voltage",
+      "Identify intermittent connection",
+      "Fix or replace wiring",
+    ],
+  },
+  {
+    keywords: [
+      "protection trip reset battery",
+      "battery wont power on after trip",
+    ],
+    category: "BMS Fault",
+    checks: [
+      "Check BMS output after reset attempt",
+      "IR scan for overheating trigger",
+    ],
+    expectedValues: [
+      { label: "BMS Output After Reset", value: "Normal battery voltage" },
+    ],
+    testParams: [
+      {
+        parameter: "BMS Output",
+        expectedValue: "Battery voltage present",
+        expectedMin: 40,
+        expectedMax: 67,
+        unit: "V",
+      },
+    ],
+    tools: ["IR Thermometer"],
+    rootCause:
+      "BMS protection latched due to critical fault (over-temp, over-current).",
+    repairSteps: [
+      "Let battery cool down",
+      "Attempt BMS reset per manual",
+      "If reset fails, replace BMS",
+    ],
+  },
+  {
+    keywords: ["fire smoke battery", "battery smoke fire", "heat rise battery"],
+    category: "General Fault",
+    checks: ["IR scan at emissivity 0.95", "Monitor heat rise"],
+    expectedValues: [{ label: "Temperature", value: "Danger — > 80°C" }],
+    testParams: [
+      {
+        parameter: "Battery Temperature (emergency)",
+        expectedValue: "< 60°C safe",
+        expectedMin: 0,
+        expectedMax: 60,
+        unit: "°C",
+      },
+    ],
+    tools: ["IR Thermometer"],
+    rootCause: "Thermal runaway or severe internal short causing fire.",
+    repairSteps: [
+      "EMERGENCY: Disconnect power",
+      "Use CO2 or dry powder extinguisher — NOT water",
+      "Evacuate area immediately",
+      "Call emergency services",
+    ],
+  },
+  {
+    keywords: [
+      "explosion risk battery",
+      "battery explosive",
+      "battery catch fire",
+    ],
+    category: "General Fault",
+    checks: ["IR scan for extreme heat at emissivity 0.95"],
+    expectedValues: [{ label: "Temperature", value: "Danger — > 100°C" }],
+    testParams: [
+      {
+        parameter: "Battery Temperature (critical)",
+        expectedValue: "< 60°C safe",
+        expectedMin: 0,
+        expectedMax: 60,
+        unit: "°C",
+      },
+    ],
+    tools: ["IR Thermometer"],
+    rootCause: "Extreme thermal runaway — explosion and toxic gas risk.",
+    repairSteps: [
+      "CRITICAL EMERGENCY: Evacuate all personnel immediately",
+      "Do NOT approach with water",
+      "Alert fire brigade",
+      "Contain in sand if possible from safe distance",
+    ],
+  },
 ];
 
 const DEFAULT_FAULT: FaultDef = {

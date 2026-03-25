@@ -5,12 +5,14 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertTriangle,
   BookOpen,
   CheckCircle2,
+  Download,
   Info,
   Search,
   Wrench,
@@ -34,6 +36,7 @@ interface HelpFault {
   repairSteps: string[];
   severity: "critical" | "warning" | "info";
   group?: string;
+  category?: string;
 }
 
 const HELP_FAULTS: HelpFault[] = [
@@ -68,6 +71,7 @@ const HELP_FAULTS: HelpFault[] = [
       "Verify controller power LED",
     ],
     severity: "critical",
+    category: "Battery & BMS",
   },
   {
     name: "Poor Performance / Low Pickup",
@@ -97,6 +101,7 @@ const HELP_FAULTS: HelpFault[] = [
       "Check controller heatsink temperature",
     ],
     severity: "warning",
+    category: "Throttle",
   },
   {
     name: "Charging Issue",
@@ -125,6 +130,7 @@ const HELP_FAULTS: HelpFault[] = [
       "Try another known-good charger",
     ],
     severity: "warning",
+    category: "Charging System",
   },
   {
     name: "ECU / Controller Fault",
@@ -154,6 +160,7 @@ const HELP_FAULTS: HelpFault[] = [
       "Inspect for water damage inside controller",
     ],
     severity: "critical",
+    category: "Controller & ECU",
   },
   {
     name: "Overheat",
@@ -178,6 +185,7 @@ const HELP_FAULTS: HelpFault[] = [
       "Clean controller heatsink",
     ],
     severity: "critical",
+    category: "Overheat & Temperature",
   },
   {
     name: "Throttle Fault",
@@ -207,6 +215,7 @@ const HELP_FAULTS: HelpFault[] = [
       "Replace throttle if out of range",
     ],
     severity: "warning",
+    category: "Throttle",
   },
   {
     name: "BMS Fault",
@@ -238,6 +247,7 @@ const HELP_FAULTS: HelpFault[] = [
       "Check balance connector wiring",
     ],
     severity: "critical",
+    category: "Battery & BMS",
   },
   {
     name: "Cell Imbalance",
@@ -268,6 +278,7 @@ const HELP_FAULTS: HelpFault[] = [
       "Replace weak cell group",
     ],
     severity: "critical",
+    category: "Battery & BMS",
   },
   {
     name: "Pre-Charge Fault",
@@ -298,6 +309,7 @@ const HELP_FAULTS: HelpFault[] = [
       "Replace relay if no output",
     ],
     severity: "critical",
+    category: "Battery & BMS",
   },
   {
     name: "Hall Sensor Fault",
@@ -327,6 +339,7 @@ const HELP_FAULTS: HelpFault[] = [
       "Replace hall sensor if no signal",
     ],
     severity: "critical",
+    category: "Hall Sensor / Regen",
   },
   {
     name: "Regen Braking Fault",
@@ -357,6 +370,7 @@ const HELP_FAULTS: HelpFault[] = [
       "Test brake sensor continuity",
     ],
     severity: "warning",
+    category: "Hall Sensor / Regen",
   },
   {
     name: "Water Damage",
@@ -389,6 +403,7 @@ const HELP_FAULTS: HelpFault[] = [
       "Test after dry-out",
     ],
     severity: "critical",
+    category: "Overheat & Temperature",
   },
   {
     name: "Wiring / Connector Fault",
@@ -419,6 +434,7 @@ const HELP_FAULTS: HelpFault[] = [
       "Re-crimp any loose terminals",
     ],
     severity: "warning",
+    category: "Electrical & Wiring",
   },
   {
     name: "Charging Port Fault",
@@ -449,6 +465,7 @@ const HELP_FAULTS: HelpFault[] = [
       "Check wire crimp at port",
     ],
     severity: "critical",
+    category: "Charging System",
   },
   {
     name: "Horn / Accessories Fault",
@@ -475,6 +492,7 @@ const HELP_FAULTS: HelpFault[] = [
       "Verify ground wire",
     ],
     severity: "warning",
+    category: "Accessories & Electricals",
   },
   {
     name: "Lights / Indicator Fault",
@@ -506,6 +524,7 @@ const HELP_FAULTS: HelpFault[] = [
       "Trace wiring with multimeter",
     ],
     severity: "warning",
+    category: "Accessories & Electricals",
   },
   {
     name: "Communication Fault",
@@ -535,6 +554,7 @@ const HELP_FAULTS: HelpFault[] = [
       "Check display connector",
     ],
     severity: "critical",
+    category: "Electrical & Wiring",
   },
   {
     name: "Brake Issue",
@@ -565,6 +585,7 @@ const HELP_FAULTS: HelpFault[] = [
       "Bleed hydraulic system if spongy",
     ],
     severity: "critical",
+    category: "Brakes & Safety",
   },
   {
     name: "Mechanical Noise",
@@ -588,6 +609,7 @@ const HELP_FAULTS: HelpFault[] = [
       "Replace worn bearings",
     ],
     severity: "warning",
+    category: "Accessories & Electricals",
   },
   {
     name: "Motor Phase Imbalance",
@@ -613,7 +635,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Values must be equal",
       "Repair winding or replace motor",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Motor & Drive" as const,
     group: "Motor",
   },
   {
@@ -632,7 +655,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Verify 120° phase shift sequence",
       "Replace faulty hall sensor or correct wiring",
     ],
-    severity: "warning" as const,
+    severity: "warning",
+    category: "Hall Sensor / Regen" as const,
     group: "Motor",
   },
   {
@@ -652,7 +676,8 @@ const HELP_FAULTS: HelpFault[] = [
       "If stuck, inspect bearings",
       "Replace bearings or motor",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Motor & Drive" as const,
     group: "Motor",
   },
   {
@@ -670,7 +695,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Zero voltage = open winding",
       "Replace motor or controller",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Motor & Drive" as const,
     group: "Motor",
   },
   {
@@ -692,7 +718,8 @@ const HELP_FAULTS: HelpFault[] = [
       "If continuity breaks during bending, wire is internally cut",
       "Replace that wire section",
     ],
-    severity: "warning" as const,
+    severity: "warning",
+    category: "Electrical & Wiring" as const,
     group: "Wiring",
   },
   {
@@ -707,7 +734,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Drop > 0.5V = bad connector",
       "Clean terminals or replace connector",
     ],
-    severity: "warning" as const,
+    severity: "warning",
+    category: "Electrical & Wiring" as const,
     group: "Wiring",
   },
   {
@@ -730,7 +758,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Apply insulation spray",
       "Replace damaged wires",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Electrical & Wiring" as const,
     group: "Wiring",
   },
   {
@@ -751,7 +780,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Should be 0 Ω",
       "Tighten or add new ground wire",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Electrical & Wiring" as const,
     group: "Wiring",
   },
   {
@@ -777,7 +807,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Ensure voltage and current ratings match",
       "Replace with correct rated controller",
     ],
-    severity: "warning" as const,
+    severity: "warning",
+    category: "Controller & ECU" as const,
     group: "Controller",
   },
   {
@@ -799,7 +830,8 @@ const HELP_FAULTS: HelpFault[] = [
       "If drop > 5V, battery is weak",
       "Replace battery or check controller",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Controller & ECU" as const,
     group: "Battery",
   },
   {
@@ -819,7 +851,8 @@ const HELP_FAULTS: HelpFault[] = [
       "5V when released = switch stuck",
       "Replace brake switch",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Brakes & Safety" as const,
     group: "Brake",
   },
   {
@@ -835,7 +868,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Check cable tension equality",
       "Adjust cable or replace pads",
     ],
-    severity: "warning" as const,
+    severity: "warning",
+    category: "Brakes & Safety" as const,
     group: "Brake",
   },
   {
@@ -851,7 +885,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Measure runout with dial gauge",
       "Replace disc if runout > 0.1mm",
     ],
-    severity: "warning" as const,
+    severity: "warning",
+    category: "Brakes & Safety" as const,
     group: "Brake",
   },
   {
@@ -874,7 +909,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Excessive jerky resistance = magnet damage",
       "Replace motor",
     ],
-    severity: "warning" as const,
+    severity: "warning",
+    category: "Motor & Drive" as const,
     group: "Motor",
   },
   {
@@ -897,7 +933,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Add ferrite beads or shielding",
       "Verify solid ground connections",
     ],
-    severity: "warning" as const,
+    severity: "warning",
+    category: "Electrical & Wiring" as const,
     group: "Wiring",
   },
   {
@@ -918,7 +955,8 @@ const HELP_FAULTS: HelpFault[] = [
       "If reverse, swap any two phase wires",
       "Re-test after swap",
     ],
-    severity: "info" as const,
+    severity: "info",
+    category: "Motor & Drive" as const,
     group: "Motor",
   },
   {
@@ -937,7 +975,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Disconnect components to isolate short",
       "Replace faulty component",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Electrical & Wiring" as const,
     group: "Electrical",
   },
   {
@@ -958,7 +997,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Check for brake drag or bearing friction",
       "Replace motor or controller",
     ],
-    severity: "warning" as const,
+    severity: "warning",
+    category: "Motor & Drive" as const,
     group: "Motor",
   },
   {
@@ -978,7 +1018,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Adjust cable tension using adjuster",
       "Tighten lock nut after adjustment",
     ],
-    severity: "info" as const,
+    severity: "info",
+    category: "Brakes & Safety" as const,
     group: "Brake",
   },
   {
@@ -1002,7 +1043,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Measure contact resistance",
       "Replace burnt connector with correct rated type",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Electrical & Wiring" as const,
     group: "Wiring",
   },
   {
@@ -1021,7 +1063,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Measure runout with dial gauge",
       "Replace shaft or motor",
     ],
-    severity: "warning" as const,
+    severity: "warning",
+    category: "Motor & Drive" as const,
     group: "Motor",
   },
   {
@@ -1048,7 +1091,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Any near-zero reading = MOSFET shorted",
       "Replace controller — not field-repairable",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Motor & Drive" as const,
     group: "Controller",
   },
   {
@@ -1073,7 +1117,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Any reading < 1MΩ = insulation failure",
       "Replace motor or re-insulate damaged wiring immediately",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Motor & Drive" as const,
     group: "Motor",
   },
   {
@@ -1096,7 +1141,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Unstable or missing pulses = gate driver failure",
       "Replace controller PCB",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Controller & ECU" as const,
     group: "Controller",
   },
   {
@@ -1119,7 +1165,8 @@ const HELP_FAULTS: HelpFault[] = [
       "If > rated max voltage, regen circuit is uncontrolled",
       "Disable regen in controller settings or replace controller",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Battery & BMS" as const,
     group: "Battery",
   },
   {
@@ -1141,7 +1188,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Current exceeding rated value = motor or controller fault",
       "Replace motor immediately — do not continue use",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Motor & Drive" as const,
     group: "Motor",
   },
   {
@@ -1162,7 +1210,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Look for signal dropouts on oscilloscope",
       "Replace hall sensors with matching type",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Hall Sensor / Regen" as const,
     group: "Motor",
   },
   {
@@ -1185,7 +1234,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Compare with cable current rating",
       "Replace with correctly rated thicker cable",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Motor & Drive" as const,
     group: "Wiring",
   },
   {
@@ -1208,7 +1258,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Never push-start an EV with a dead controller",
       "Replace damaged controller",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Motor & Drive" as const,
     group: "Controller",
   },
   {
@@ -1231,7 +1282,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Check main fuse and battery connector for short",
       "Replace full harness — partial repair not safe",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Electrical & Wiring" as const,
     group: "Wiring",
   },
   {
@@ -1254,7 +1306,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Replace connector with correct rated type",
       "Add pre-charge resistor if large capacitors are present",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Battery & BMS" as const,
     group: "Battery",
   },
   {
@@ -1277,7 +1330,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Resistance > 0.5Ω under load = bad ground",
       "Trace and rebuild grounding points",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Electrical & Wiring" as const,
     group: "Wiring",
   },
   {
@@ -1300,7 +1354,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Drop > 5V = weak battery or high resistance wiring",
       "Replace battery or inspect wiring joints",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Battery & BMS" as const,
     group: "Battery",
   },
   {
@@ -1323,7 +1378,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Separate throttle and brake wiring runs",
       "Use shielded cable for signal wires if needed",
     ],
-    severity: "warning" as const,
+    severity: "warning",
+    category: "Electrical & Wiring" as const,
     group: "Wiring",
   },
   {
@@ -1346,7 +1402,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Continuity = relay welded shut",
       "Replace relay with correct current-rated type",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Controller & ECU" as const,
     group: "Controller",
   },
   {
@@ -1368,7 +1425,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Replace pads with higher performance compound",
       "Check for dragging caliper causing pre-heating",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Brakes & Safety" as const,
     group: "Brake",
   },
   {
@@ -1390,7 +1448,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Fix leak point",
       "Bleed brake line and refill with correct fluid",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Brakes & Safety" as const,
     group: "Brake",
   },
   {
@@ -1411,7 +1470,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Sudden wheel lock = controller regen fault",
       "Disable regen if possible, replace controller",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Brakes & Safety" as const,
     group: "Brake",
   },
   {
@@ -1435,7 +1495,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Adjust cable tension or caliper piston on strong side",
       "Replace worn pads and equalise both sides",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Brakes & Safety" as const,
     group: "Brake",
   },
   {
@@ -1456,7 +1517,8 @@ const HELP_FAULTS: HelpFault[] = [
       "Delayed signal change = faulty sensor",
       "Replace brake sensor",
     ],
-    severity: "critical" as const,
+    severity: "critical",
+    category: "Brakes & Safety" as const,
     group: "Brake",
   },
   {
@@ -1479,12 +1541,27 @@ const HELP_FAULTS: HelpFault[] = [
       "Any movement = insufficient holding force",
       "Adjust cable tension or replace parking brake mechanism",
     ],
-    severity: "warning" as const,
+    severity: "warning",
+    category: "Brakes & Safety" as const,
     group: "Brake",
   },
 ];
 
 // Build the sub-fault flat list from SUB_FAULT_GROUPS for the specific faults tab
+const SUB_FAULT_CATEGORY_MAP: Record<string, string> = {
+  Motor: "Motor & Drive",
+  Battery: "Battery & BMS",
+  Controller: "Controller & ECU",
+  Charging: "Charging System",
+  Brakes: "Brakes & Safety",
+  Throttle: "Throttle",
+  BMS: "Battery & BMS",
+  Wiring: "Electrical & Wiring",
+  Electrical: "Electrical & Wiring",
+  Hall: "Hall Sensor / Regen",
+  Regen: "Hall Sensor / Regen",
+};
+
 const ALL_SUB_FAULTS: HelpFault[] = SUB_FAULT_GROUPS.flatMap((group) =>
   group.subFaults.map((sf) => ({
     name: sf.name,
@@ -1496,6 +1573,7 @@ const ALL_SUB_FAULTS: HelpFault[] = SUB_FAULT_GROUPS.flatMap((group) =>
     repairSteps: sf.repairSteps,
     severity: "critical" as const,
     group: group.groupName,
+    category: SUB_FAULT_CATEGORY_MAP[group.groupName] ?? group.groupName,
   })),
 );
 
@@ -1689,6 +1767,117 @@ function FaultAccordion({
   );
 }
 
+const CATEGORY_CONFIG: Record<
+  string,
+  { icon: string; color: string; bg: string; border: string }
+> = {
+  "Battery & BMS": {
+    icon: "🔋",
+    color: "text-orange-700",
+    bg: "bg-orange-50",
+    border: "border-orange-200",
+  },
+  "Motor & Drive": {
+    icon: "⚙️",
+    color: "text-primary",
+    bg: "bg-primary/5",
+    border: "border-primary/20",
+  },
+  "Controller & ECU": {
+    icon: "🖥️",
+    color: "text-blue-700",
+    bg: "bg-blue-50",
+    border: "border-blue-200",
+  },
+  "Electrical & Wiring": {
+    icon: "🔌",
+    color: "text-yellow-700",
+    bg: "bg-yellow-50",
+    border: "border-yellow-200",
+  },
+  "Charging System": {
+    icon: "⚡",
+    color: "text-green-700",
+    bg: "bg-green-50",
+    border: "border-green-200",
+  },
+  Throttle: {
+    icon: "🎯",
+    color: "text-purple-700",
+    bg: "bg-purple-50",
+    border: "border-purple-200",
+  },
+  "Brakes & Safety": {
+    icon: "🛑",
+    color: "text-red-700",
+    bg: "bg-red-50",
+    border: "border-red-200",
+  },
+  "Overheat & Temperature": {
+    icon: "🌡️",
+    color: "text-rose-700",
+    bg: "bg-rose-50",
+    border: "border-rose-200",
+  },
+  "Accessories & Electricals": {
+    icon: "💡",
+    color: "text-indigo-700",
+    bg: "bg-indigo-50",
+    border: "border-indigo-200",
+  },
+  "Hall Sensor / Regen": {
+    icon: "🔄",
+    color: "text-teal-700",
+    bg: "bg-teal-50",
+    border: "border-teal-200",
+  },
+  General: {
+    icon: "🔧",
+    color: "text-gray-700",
+    bg: "bg-gray-50",
+    border: "border-gray-200",
+  },
+};
+
+function downloadFaultsAsCSV(allFaults: HelpFault[]) {
+  const headers = [
+    "Sr. No.",
+    "Fault Name",
+    "Category",
+    "Severity",
+    "Keywords",
+    "What to Check",
+    "Expected Values",
+    "Tools Required",
+    "Root Cause",
+    "Repair Steps",
+  ];
+  const rows = allFaults.map((fault, idx) => [
+    idx + 1,
+    fault.name,
+    fault.category ?? fault.group ?? "General",
+    fault.severity,
+    fault.keywords.join("; "),
+    fault.checks.join("; "),
+    fault.expectedValues.map((ev) => `${ev.label}: ${ev.value}`).join("; "),
+    fault.tools.join("; "),
+    fault.rootCause,
+    fault.repairSteps.join("; "),
+  ]);
+  const csvContent = [headers, ...rows]
+    .map((row) =>
+      row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
+    )
+    .join("\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "EV_Fault_Reference.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export function HelpPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("general");
@@ -1720,6 +1909,27 @@ export function HelpPage() {
     );
   }, [searchQuery]);
 
+  const faultsByCategory = useMemo(() => {
+    const allFaults = [...HELP_FAULTS, ...ALL_SUB_FAULTS];
+    const q = searchQuery.toLowerCase().trim();
+    const filtered = q
+      ? allFaults.filter(
+          (fault) =>
+            fault.name.toLowerCase().includes(q) ||
+            fault.keywords.some((kw) => kw.toLowerCase().includes(q)) ||
+            fault.rootCause.toLowerCase().includes(q) ||
+            fault.checks.some((c) => c.toLowerCase().includes(q)) ||
+            (fault.category ?? "General").toLowerCase().includes(q),
+        )
+      : allFaults;
+    return filtered.reduce<Record<string, HelpFault[]>>((acc, fault) => {
+      const cat = fault.category ?? fault.group ?? "General";
+      if (!acc[cat]) acc[cat] = [];
+      acc[cat].push(fault);
+      return acc;
+    }, {});
+  }, [searchQuery]);
+
   const totalFaults = HELP_FAULTS.length + ALL_SUB_FAULTS.length;
   const displayedCount =
     activeTab === "general" ? filteredGeneral.length : filteredSpecific.length;
@@ -1730,19 +1940,33 @@ export function HelpPage() {
     <div className="space-y-6" data-ocid="help.page">
       {/* Header */}
       <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-            <BookOpen size={20} className="text-primary" />
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <BookOpen size={20} className="text-primary" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-foreground tracking-tight">
+                Fault Help Guide
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                Complete reference of all EV faults — technician can search and
+                select
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground tracking-tight">
-              Fault Help Guide
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Complete reference of all EV faults — technician can search and
-              select
-            </p>
-          </div>
+          <Button
+            variant="outline"
+            className="flex items-center gap-2 border-primary text-primary hover:bg-primary hover:text-white flex-shrink-0"
+            onClick={() =>
+              downloadFaultsAsCSV([...HELP_FAULTS, ...ALL_SUB_FAULTS])
+            }
+            data-ocid="help.download_button"
+          >
+            <Download size={16} />
+            <span className="hidden sm:inline">Download Excel</span>
+            <span className="sm:hidden">Export</span>
+          </Button>
         </div>
       </div>
 
@@ -1800,6 +2024,12 @@ export function HelpPage() {
             Specific Sub-Faults
             <span className="ml-2 text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full font-medium">
               {ALL_SUB_FAULTS.length}
+            </span>
+          </TabsTrigger>
+          <TabsTrigger value="bycategory" data-ocid="help.bycategory.tab">
+            By Category
+            <span className="ml-2 text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full font-medium">
+              {Object.keys(faultsByCategory).length}
             </span>
           </TabsTrigger>
         </TabsList>
@@ -1870,6 +2100,61 @@ export function HelpPage() {
               faults={filteredSpecific}
               ocidPrefix="help.specific"
             />
+          )}
+        </TabsContent>
+
+        <TabsContent value="bycategory" className="mt-4 space-y-4">
+          {Object.keys(faultsByCategory).length === 0 ? (
+            <div
+              className="flex flex-col items-center justify-center py-20 text-center"
+              data-ocid="help.bycategory.empty_state"
+            >
+              <Search size={40} className="text-muted-foreground/30 mb-4" />
+              <p className="text-lg font-semibold text-foreground">
+                No faults found
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Try a different search term
+              </p>
+            </div>
+          ) : (
+            Object.entries(faultsByCategory)
+              .sort(([a], [b]) => a.localeCompare(b))
+              .map(([category, faults]) => {
+                const cfg =
+                  CATEGORY_CONFIG[category] ?? CATEGORY_CONFIG.General;
+                return (
+                  <div
+                    key={category}
+                    className={`rounded-xl border ${cfg.border} overflow-hidden`}
+                    data-ocid="help.bycategory.panel"
+                  >
+                    <div
+                      className={`flex items-center justify-between px-5 py-3 ${cfg.bg} border-b ${cfg.border}`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl">{cfg.icon}</span>
+                        <span className={`font-bold text-base ${cfg.color}`}>
+                          {category}
+                        </span>
+                      </div>
+                      <Badge
+                        variant="outline"
+                        className={`text-xs font-semibold ${cfg.color} border-current`}
+                      >
+                        {faults.length}{" "}
+                        {faults.length === 1 ? "fault" : "faults"}
+                      </Badge>
+                    </div>
+                    <div className="p-3 bg-card">
+                      <FaultAccordion
+                        faults={faults}
+                        ocidPrefix={`help.cat.${category.toLowerCase().replace(/[^a-z0-9]/g, "_")}`}
+                      />
+                    </div>
+                  </div>
+                );
+              })
           )}
         </TabsContent>
       </Tabs>
